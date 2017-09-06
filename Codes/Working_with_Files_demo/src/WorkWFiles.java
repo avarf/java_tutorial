@@ -53,6 +53,15 @@ public class WorkWFiles {
 	public void delete_File(String file_add) throws IOException{
 		// TODO Auto-generated method stub
 		
+		File file_path = new File(file_add);
+		
+		if (Files.notExists(file_path.toPath())) {
+			System.out.println("File doesn't exist.");
+			return;
+		}
+		
+		Files.delete(file_path.toPath());
+		
 	}
 
 	public void create_File(String file_add) throws IOException{
