@@ -18,7 +18,10 @@ public class WorkWFiles {
 			return;
 		}
 		
-		Files.copy(src_path.toPath(), dest_path.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		String file_name = src_path.getName();
+		File final_dest_path = new File(dest_add+file_name);
+
+		Files.copy(src_path.toPath(), final_dest_path.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		
 	}
 
@@ -33,8 +36,6 @@ public class WorkWFiles {
 		File src_path = new File(src_add);
 		File dest_path = new File(dest_add);
 		
-		System.out.println(src_path.getName());
-		
 		if(Files.notExists(dest_path.toPath())){
 			System.out.println("INSIDE THE IF");
             Files.createDirectory(dest_path.toPath());
@@ -43,7 +44,9 @@ public class WorkWFiles {
 			return;
 		}
 		
-		Files.move(src_path.toPath(), dest_path.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		String file_name = src_path.getName();
+		File final_dest_path = new File(dest_add+file_name);
+		Files.move(src_path.toPath(), final_dest_path.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		
 	}
 
