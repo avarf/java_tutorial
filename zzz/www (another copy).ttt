@@ -1,0 +1,198 @@
+In this post I will describe how to read and write to a file in java.
+
+Different Files
+Generally all the files in a computer are either text or binary files. Both of these files are a series of bits but the main difference between those two is what they represents. Bits in a text file represent characters but in a binary file bits represent custom data.
+
+File accsess mode
+For working with files we need to specify a mode to tell the OS that what operation we want to execute on that file. Below list provides a list of file modes:
+- r: Read only mode. Open file for reading and put the pointer at the beginning of the file. This is the default mode
+- r+: Read write mode. Open file for reading and writing and put the pointer at the beginning of file
+- w: Write only mode. Open file for writing only. Overwrite the file if it exists and trys to create a new file if it doesn't exists and put the pointer at the beginig of the file
+- w+: Read-Write mode. Overwrite the file if it exists and trys to create a new file if it doesn't exists for reding and writing and put the pointer at the beginig of the file
+- a: Write only mode. If the file does not exist, it creates a new file for writing and if the file exists it put the pointer at the end of the file for writing and appnding new data
+- a+: Read and Write mode. If the file does not exist, it creates a new file for writing and reading and if the file exists it put the pointer at the end of the file for writing and appnding new data
+- x: Write only mode. Create a file for writing only and fails if the file is already exists
+- x+: Write and Read mode. Create a file for reading and writing and fails if the file is already exists
+
+Read from a file
+
+
+
+
+******************************
+A common use case for using data and object streams is to implement input and output (communication)
+between different running programs, for example to send objects or data from one process
+to another. This concept is called inter-process communication (IPC). While discussing the details of
+IPC is too advanced for a beginner’s book on programming, it is worth knowing that this exists and
+can in fact be implemented in various ways:
+➤➤ Using a file: One program writes information to a file, which is then read out by another program.
+This method is crude, but works and is relatively simple to implement. After reading
+through this chapter, you’ll know how to read and write from files, and the Data and Object
+streams mentioned above can be utilized here to read from and write to these files.
+➤➤ Sending a signal: This works only if signaling capabilities are provided by the underlying
+operating system. Oftentimes it’s used to send commands instead of larger data.
+➤➤ A network socket: A data stream sent over a network interface. Note that this allows the communicating
+programs to also reside on different machines. Chapter 10 provides a basic introduction
+regarding building web services using Java, which can also be used to enable IPC.
+➤➤ A pipe: This is a data stream that allows two-way character-by-character communication,
+supported and provided by most operating systems.
+➤➤ A message queue: Also provided by the operating system. Similar to a pipe, but messages are
+sent in packets rather than streamed character by character.
+➤➤ Shared memory: Two programs are given access to the same part of memory.
+
+**************************
+Take some time to execute this
+class and familiarize yourself
+with the code. Try to enter a palindrome
+such as “amoreroma”
+and see what happens.
+Now, we will take this a step
+further. Right-click on the
+LineReverser class in Eclipse
+and choose Export. Next, select
+Runnable JAR File. See Figure 8-5.
+In the next screen, select
+LineReverser as the “launch
+configuration” (this requires
+that you ran the class in Eclipse
+at least once). Set the Export
+Destination to linereverser.
+jar on your desktop.
+************************
+However, there’s more to file I/O than just taking and dropping contents from and into files. Files
+can be checked for existence, deleted, moved, copied, created, can contain metadata of various sorts,
+and can be organized into directories, which are also traversable in Java. The following sections
+teach you how to handle all of these things.
+******************
+path interface:
+A path can also be “relative.” Relative paths need to be combined with other paths to access a file.
+Note the use of "..", which traverses one level up the directory tree. A single dot (.) in a path refers to the current directory.
+
+
+In Java, the Path type, found under the java.nio.file package, represents a path in the file system. Path objects contain the filename and directory list used to build the path, and can be used to examine and work with files. Creating a path is done by using the get method on the Paths class, also under java.nio.file, like so:
+Path myPath = Paths.get("C:\\projects\\outline.txt");
+
+These methods do not require that the file corresponding to the
+path actually exist:
+➤➤ String myPath.toString(): Returns the string representation of the Path object. Note
+that this method will attempt to perform syntactic cleanup.
+➤➤ Path myPath.getFileName(): Returns the filename or the last element in the Path object.
+➤➤ Path myPath.getName(int i): Returns the Path element corresponding to the specified
+index. Note that index 0 does not represent the root, but the element closest to the root.
+➤➤ int myPath.getNameCount(): Returns the number of elements in the path.
+➤➤ Path myPath.subpath(int i, int j): Returns the subsequence of the Path (not including
+a root element) as specified by beginning and ending indices.
+➤➤ Path myPath.getParent(): Returns the Path of the parent directory of this path.
+➤➤ Path myPath.getRoot(): Returns the root of the path.
+➤➤ Path myPath.normalize(): Cleans up redundancies from a path and returns the cleanedup
+result. For example, “C:\.\projects\..\movies\vacation.avi” is converted to “C:\
+movies\vacation.avi”.
+➤➤ Path myPath.resolve(String partialPath): The partial path (not including a root element)
+is added to the original path and the new path is returned. If you pass in an absolute
+path, the absolute Path itself will be returned.
+➤➤ Path myPath.relativize(Path otherPath): Constructs a new Path object originating
+from the original path and ending at the location specified by otherPath. This returns a relative
+Path.
+In addition, methods exist to convert a path:
+➤➤ URI myPath.toUri(): Converts the path to a string that can be opened by web browsers.
+Note An important thing to note here is that Path is an interface type, whereas
+Paths is a normal class (albeit a very simple one, without a public constructor).
+In case you're wondering why the former is an interface, the reason for this is to
+allow developers of custom file systems to be able to implement (or extend) it.
+The usage of the s suffix of Path versus Paths is also in line with other
+concepts in NIO2, for instance Files (which you'll encounter later on) and
+FileSystem versus FileSystems. In fact, calling the get method of Paths is a
+shorthand for:
+FileSystems // A static utility class containing methods to create
+FileSystem objects
+.getDefault() // Get the default file system FileSystem
+.getPath("C:\\projects\\outline.txt") // Return a Path
+Input and Output from Files ❘ 293
+➤➤ Path myPath.toAbsolutePath(): Converts a relative path to an absolute one.
+➤➤ Path myPath.toRealPath(LinkOption... options): Returns the real path of an existing
+file. If true is passed in the options parameters, links will be resolved to their real paths (if
+the file system supports links). In addition, relative paths will be converted to absolute ones and redundant elements will be removed.
+
+***********************************
+
+The Files Class
+---------
+Checking Existence:
+➤➤ boolean Files.exists(Path pathToCheck, LinkOption... options)
+➤➤ boolean Files.notExists(Path pathToCheck, LinkOption... options)
+
+
+The reason
+for this is because—when checking the existence of a path—three results can occur: the file
+exists, the file does not exist, or your program cannot determine the existence, for instance,
+when access rules block your program from reaching the path. If both exists and notExists
+return false, this means the existence of the path cannot be verified. If exists returns true, this
+means you can safely continue working with this file, as it exists and can be accessed from your
+program.
+
+There are also a number of other methods to check a file’s status:
+➤➤ boolean Files.isReadable(Path pathToCheck): Tests whether a path is readable.
+➤➤ boolean Files.isWritable(Path pathToCheck): Tests whether a path is writable.
+➤➤ boolean Files.isExecutable(Path pathToCheck): Tests whether a path is executable.
+➤➤ boolean Files.isDirectory(Path pathToCheck): Tests whether the path represents a
+directory.
+➤➤ boolean Files.isSameFile(Path firstPath, Path secondPath): Tests whether two
+paths resolve to the same location, taking into account redundant syntax and links.
+
+Deleting Files and Folders
+
+Files.delete(path);
+Note that there is also a Files.deleteIfExists(Path pathToDelete) method. This method works in a similar manner, but will not throw an exception when the file does not exist. It just does nothing in that case.
+
+Copying and Moving Files and Folders
+Next up, you look at two methods for copying and moving files:
+➤➤ Path copy(Path source, Path target, CopyOptions... options): Copies a source
+file to a target file. The options specify how the copy is performed. By default, the copy
+operation will fail if the target file already exists (except when both are the same file),
+unless you pass REPLACE_EXISTING as an option. If the file to copy is a directory, an empty
+Input and Output from Files ❘ 295
+directory is created in the target location, but the entries in the directory are not copied. You
+will see later how to easily copy over a complete directory using this method.
+➤➤ Path move(Path source, Path target, CopyOptions... options): Moves a source
+file to a target file. The options specify how the move is performed. By default, the move
+operation will fail if the target file already exists (except when both are the same file), unless
+you pass REPLACE_EXISTING as an option. If the file to copy is a directory, the move will be
+successful if the directory is empty. Otherwise, the result of the move depends on the underlying
+file system and can throw an IOException in some cases. In that case, a copy should be
+performed first followed by a manual cleanup of the original source directory.
+
+**************************************
+
+Reading, Writing, and Creating Files
+
+First of all, when you just want to get all bytes or lines from a file, you can use the following
+methods:
+➤➤ byte[] Files.readAllBytes(Path path): Reads all the bytes from a file to a byte array.
+This method takes care of opening and closing the file for you.
+➤➤ List<String> readAllLines(Path path, Charset cs): Reads all lines from a file to a
+list of strings. This method takes care of opening and closing the file for you. The Charset
+parameter specifies which character set should be used for decoding the file. Using Charset.
+defaultCharset() or Charset.forName("UTF-8") works best in most cases.
+Note, however, that these methods will read the complete contents of a file at once, and thus will fail
+to work when you are dealing with large files. For small files, however, this approach is straightforward
+and works just fine.
+
+public class ShowGroceries {
+public static void main(String[] args) {
+List<String> groceries = new ArrayList<>();
+try {
+	groceries = Files.readAllLines(Paths.get("groceries.txt"),
+				Charset.defaultCharset());
+} catch (IOException e) {
+	e.printStackTrace();
+}
+for (String item : groceries) {
+	System.out.println("Don't forget to pickup: " + item);
+}
+}
+}
+
+
+
+
+
